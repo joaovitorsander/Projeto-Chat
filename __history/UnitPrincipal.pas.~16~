@@ -1,0 +1,143 @@
+unit UnitPrincipal;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Objects,
+  FMX.Layouts, FMX.Controls.Presentation, FMX.StdCtrls, FMX.ListView.Types,
+  FMX.ListView.Appearances, FMX.ListView.Adapters.Base, FMX.ListView,
+  FMX.TextLayout, FMX.Edit;
+
+type
+  TFrmPrincipal = class(TForm)
+    Layout1: TLayout;
+    imgVoltar: TImage;
+    Label1: TLabel;
+    Layout2: TLayout;
+    Circle1: TCircle;
+    Label2: TLabel;
+    lvChat: TListView;
+    Layout3: TLayout;
+    imgFundo: TImage;
+    StyleBook1: TStyleBook;
+    edtTexto: TEdit;
+    btnEnviar: TSpeedButton;
+    Image1: TImage;
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AddMessage(AIdMessage: Integer; ATexto, AData: String;
+      AIndProprio: Boolean);
+    procedure ListarMensagens;
+    Procedure LayoutLvProprio(AItem: TListViewItem);
+    Procedure LayoutLv(AItem: TListViewItem);
+    function GetTextHeight(const D: TListItemText; const Width: single;
+      const Text: string): Integer;
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmPrincipal: TFrmPrincipal;
+
+implementation
+
+{$R *.fmx}
+{ TFrmPrincipal }
+
+function TFrmPrincipal.GetTextHeight(const D: TListItemText; const Width: single; const Text: string): Integer;
+var
+  Layout: TTextLayout;
+begin
+  Layout := TTextLayoutManager.DefaultTextLayout.Create;
+  try
+    Layout.BeginUpdate;
+    try
+      Layout.Font.Assign(D.Font);
+      Layout.VerticalAlign := D.TextVertAlign;
+      Layout.HorizontalAlign := D.TextAlign;
+      Layout.WordWrap := D.WordWrap;
+      Layout.Trimming := D.Trimming;
+      Layout.MaxSize := TPointF.Create(Width, TTextLayout.MaxLayoutSize.Y);
+      Layout.Text := Text;
+    finally
+      Layout.EndUpdate;
+    end;
+
+    Result := Round(Layout.Height);
+
+    Layout.Text := 'm';
+    Result := Result + Round(Layout.Height);
+  finally
+    Layout.Free;
+  end;
+end;
+
+procedure TFrmPrincipal.AddMessage(AIdMessage: Integer; ATexto, AData: String;
+  AIndProprio: Boolean);
+var
+  item : TListViewItem;
+begin
+  item := lvChat.Items.Add;
+
+  with item do
+  begin
+    Height := 100;
+    Tag := AIdMessage;
+
+    if AIndProprio then
+      TagString := 'S'
+    else
+      TagString := 'N';
+
+    //Fundo
+    //TListItemImage(Objects.FindDrawable('imgFoto')).Bitmap := imgFundo.Bitmap;
+
+    //Texo
+    //TListItemText(Objects.FindDrawable('txtMsg')).Text := ATexto;
+
+    //Data
+    //TListItemText(Objects.FindDrawable('xtData')).Text := AData;
+  end;
+
+  if AIndProprio then
+    LayoutLvProprio(item)
+  else
+     LayoutLv(item);
+
+end;
+
+procedure TFrmPrincipal.FormShow(Sender: TObject);
+begin
+  ListarMensagens;
+end;
+
+procedure TFrmPrincipal.LayoutLv(AItem: TListViewItem);
+var
+  img: TListItemImage;
+  txt: TListItemText;
+begin
+  //Posiciona o texto
+  txt := TListItemText(AItem.Objects.FindDrawable('txtMsg'));
+  txt.Width := lvChat.Width / 2 - 15;
+  txt.PlaceOffset.X := 20;
+  txt.PlaceOffset.Y := 10;
+  txt.Height := GetTextHeight(txt, txt.Width, txt.Text);
+  txt.TextColor := $FFFFFFFF;
+end;
+
+procedure TFrmPrincipal.LayoutLvProprio(AItem: TListViewItem);
+begin
+
+end;
+
+procedure TFrmPrincipal.ListarMensagens;
+begin
+  AddMessage(123, 'Olá', '02/07/2024 9:46 PM', false);
+  AddMessage(123, 'Olá', '02/07/2024 9:46 PM', false);
+  AddMessage(123, 'Olá', '02/07/2024 9:46 PM', false);
+end;
+
+end.
